@@ -171,10 +171,13 @@ export default {
 
         // Call revise_plan workflow
         if (state.last_plan) {
+          // Include the current user message in chat history for context
+          const updatedChatHistory = [...(state.chat_history || []), { role: 'user', content: message }];
+          
           const revisedResponse = await revise_plan(
             {
               currentPlan: state.last_plan,
-              chatHistory: state.chat_history || [],
+              chatHistory: updatedChatHistory,
             },
             message,
             env

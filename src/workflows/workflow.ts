@@ -175,32 +175,25 @@ ${chatHistoryText}
 }
 
 /**
- * Main Workflow Entrypoint (Cloudflare Workflows API)
+ * Complete Workflow: Extract syllabus and generate plan
+ * This orchestrates the three-step process
  */
-export class SyllabusWorkflow extends WorkflowEntrypoint<Env, WorkflowParams> {
-  async run(event: WorkflowEvent<WorkflowParams>, step: WorkflowStep) {
-    const { syllabusText, preferences } = event.payload;
+export async function runCompleteWorkflow(
+  syllabusText: string,
+  preferences: { weeklyAvailability?: string; goals?: string },
+  env: Env
+): Promise<{ status: string; syllabusJson: any; studyPlan: string }> {
+  // Step 1: Extract syllabus
+  const syllabusJson = await extract_syllabus(syllabusText, env);
 
-    // Step 1: Extract syllabus
-    const syllabusJson = await step.do('extract-syllabus', async () => {
-      return await extract_syllabus(syllabusText, this.env);
-    });
+  // Step 2: Generate study plan
+  const studyPlan = await plan_schedule(syllabusJson, preferences, env);
 
-    // Step 2: Generate study plan
-    const studyPlan = await step.do('generate-plan', async () => {
-      return await plan_schedule(
-        syllabusJson,
-        preferences || {},
-        this.env
-      );
-    });
-
-    // Return the workflow result
-    return {
-      status: 'completed',
-      syllabusJson,
-      studyPlan,
-    };
-  }
+  // Return the workflow result
+  return {
+    status: 'completed',
+    syllabusJson,
+    studyPlan,
+  };
 }
 

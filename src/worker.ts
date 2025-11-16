@@ -3,15 +3,13 @@
  */
 
 import { UserMemory } from './durable-objects/UserMemory';
-import { SyllabusWorkflow } from './workflows/workflow';
 import { extract_syllabus, plan_schedule, revise_plan } from './workflows/workflow';
 
-export { UserMemory, SyllabusWorkflow };
+export { UserMemory };
 
 interface Env {
   AI: Ai;
   USER_MEMORY: DurableObjectNamespace;
-  SYLLABUS_WORKFLOW: Workflow;
 }
 
 /**

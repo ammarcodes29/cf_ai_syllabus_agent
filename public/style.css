@@ -122,6 +122,30 @@ button:disabled {
 }
 
 /* Chat Section */
+#status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: var(--text-light);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-light);
+}
+
+.status-dot.connected {
+    background: #10b981;
+}
+
+.status-dot.error {
+    background: #ef4444;
+}
+
 #chat-messages {
     max-height: 400px;
     overflow-y: auto;
@@ -135,6 +159,18 @@ button:disabled {
     margin-bottom: 1rem;
     padding: 0.75rem;
     border-radius: 6px;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .message.user {
@@ -145,6 +181,10 @@ button:disabled {
 .message.assistant {
     background: #f3f4f6;
     margin-right: 2rem;
+}
+
+.message-content {
+    word-wrap: break-word;
 }
 
 #chat-input-area {
@@ -158,6 +198,8 @@ button:disabled {
     border: 1px solid var(--border);
     border-radius: 6px;
     font-family: inherit;
+    resize: vertical;
+    min-height: 60px;
 }
 
 footer {

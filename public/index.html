@@ -38,9 +38,13 @@
 
             <section id="chat-section" class="card hidden">
                 <h2>Your Study Plan</h2>
+                <div id="status-indicator" class="status hidden">
+                    <span class="status-dot"></span>
+                    <span id="status-text">Connected</span>
+                </div>
                 <div id="chat-messages"></div>
                 <div id="chat-input-area">
-                    <input type="text" id="chat-input" placeholder="Ask to modify your plan...">
+                    <textarea id="chat-input" rows="3" placeholder="Ask to modify your plan..."></textarea>
                     <button id="send-btn">Send</button>
                 </div>
             </section>
@@ -51,7 +55,7 @@
         </footer>
     </div>
 
-    <script src="/app.js"></script>
+    <script src="/script.js"></script>
 </body>
 </html>
 

@@ -1,0 +1,29 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "cf-ai-syllabus-agent"
+main = "src/worker.ts"
+compatibility_date = "2025-11-16"
+
+# AI Binding
+[ai]
+binding = "AI"
+
+# Durable Object Binding
+[[durable_objects.bindings]]
+name = "USER_MEMORY"
+class_name = "UserMemory"
+script_name = "cf-ai-syllabus-agent"
+
+# Durable Object Migration
+[[migrations]]
+tag = "v1"
+new_classes = ["UserMemory"]
+
+# Workflow Binding (placeholder - adjust based on actual workflow setup)
+# [[workflows]]
+# binding = "SYLLABUS_WORKFLOW"
+# name = "syllabus-workflow"
+
+# Workers AI model configuration
+# Using Llama 3.3 as specified in PRD
+# Note: Actual model binding happens through the AI binding above
+

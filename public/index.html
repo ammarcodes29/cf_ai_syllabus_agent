@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syllabus Study Agent</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Syllabus Study Agent</h1>
+            <p>AI-powered personalized study plan generator</p>
+        </header>
+
+        <main>
+            <section id="upload-section" class="card">
+                <h2>Upload Your Syllabus</h2>
+                <div id="upload-area">
+                    <input type="file" id="syllabus-file" accept=".pdf,.txt,.doc,.docx">
+                    <label for="syllabus-file">Choose file or drag and drop</label>
+                </div>
+                <button id="upload-btn" disabled>Upload & Process</button>
+            </section>
+
+            <section id="preferences-section" class="card hidden">
+                <h2>Tell Us Your Preferences</h2>
+                <form id="preferences-form">
+                    <label for="availability">Weekly Availability:</label>
+                    <textarea id="availability" placeholder="e.g., Weekdays 2-5pm, Weekends mornings"></textarea>
+                    
+                    <label for="goals">Study Goals:</label>
+                    <textarea id="goals" placeholder="e.g., Steady pace, focus on understanding over speed"></textarea>
+                    
+                    <button type="submit">Generate Plan</button>
+                </form>
+            </section>
+
+            <section id="chat-section" class="card hidden">
+                <h2>Your Study Plan</h2>
+                <div id="chat-messages"></div>
+                <div id="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Ask to modify your plan...">
+                    <button id="send-btn">Send</button>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Built with Cloudflare Workers AI</p>
+        </footer>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>
+

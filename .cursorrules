@@ -1,0 +1,35 @@
+# Cursor Project Rules
+
+# Structure
+- Use TypeScript whenever possible.
+- Keep each module small and composable.
+- Separate LLM prompts into PROMPTS.md.
+- All Cloudflare-specific components must comply with Workers runtime.
+
+# Code Style
+- No +page.server.ts style frameworks.
+- Use clean async/await patterns.
+- No third-party dependencies unless absolutely necessary.
+
+# Worker Rules
+- All Worker code must be isomorphic (no Node-specific APIs).
+- Use fetch() instead of Axios.
+- Do not use fs or path.
+
+# Durable Objects
+- Keep DO state JSON-serializable.
+- Provide getState() and updateState() helper functions.
+
+# Realtime / Pages
+- Keep frontend vanilla HTML/CSS/JS.
+- No React required for MVP.
+
+# Testing / Logs
+- Use console.log for debugging.
+- Never leak API keys.
+
+# Goals
+- Produce a deployable Cloudflare AI agent with:
+  - memory
+  - workflows
+  - UI

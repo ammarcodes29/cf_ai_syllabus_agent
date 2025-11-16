@@ -18,10 +18,11 @@ script_name = "cf-ai-syllabus-agent"
 tag = "v1"
 new_classes = ["UserMemory"]
 
-# Workflow Binding (placeholder - adjust based on actual workflow setup)
-# [[workflows]]
-# binding = "SYLLABUS_WORKFLOW"
-# name = "syllabus-workflow"
+# Workflow Configuration
+[[workflows]]
+binding = "SYLLABUS_WORKFLOW"
+name = "syllabus-workflow"
+class_name = "SyllabusWorkflow"
 
 # Workers AI model configuration
 # Using Llama 3.3 as specified in PRD

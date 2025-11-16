@@ -3,8 +3,9 @@
  */
 
 import { UserMemory } from './durable-objects/UserMemory';
+import { SyllabusWorkflow } from './workflows/workflow';
 
-export { UserMemory };
+export { UserMemory, SyllabusWorkflow };
 
 interface Env {
   AI: Ai;

@@ -6,6 +6,9 @@
 let userId = generateUserId();
 let selectedFile = null;
 
+// API Base URL (change this if deployed)
+const API_BASE = '';
+
 // Elements
 const uploadSection = document.getElementById('upload-section');
 const preferencesSection = document.getElementById('preferences-section');
@@ -29,29 +32,83 @@ fileInput.addEventListener('change', (e) => {
 uploadBtn.addEventListener('click', async () => {
     if (!selectedFile) return;
     
-    // TODO: Implement file upload
-    console.log('Uploading file:', selectedFile.name);
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = 'Processing...';
     
-    // Simulate upload and show preferences
-    uploadSection.classList.add('hidden');
-    preferencesSection.classList.remove('hidden');
+    try {
+        // Read file as text (for now, assume text file)
+        const syllabusText = await selectedFile.text();
+        
+        // Upload syllabus
+        const response = await fetch(`${API_BASE}/upload-syllabus`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, syllabusText })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            console.log('Syllabus processed:', result.syllabusJson);
+            uploadSection.classList.add('hidden');
+            preferencesSection.classList.remove('hidden');
+        } else {
+            alert('Failed to process syllabus: ' + (result.error || 'Unknown error'));
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = 'Upload & Process';
+        }
+    } catch (error) {
+        console.error('Upload error:', error);
+        alert('Failed to upload syllabus. Please try again.');
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = 'Upload & Process';
+    }
 });
 
 preferencesForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
+    const submitBtn = preferencesForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Generating Plan...';
+    
     const availability = document.getElementById('availability').value;
     const goals = document.getElementById('goals').value;
     
-    // TODO: Send preferences and generate plan
-    console.log('Preferences:', { availability, goals });
-    
-    // Show chat section
-    preferencesSection.classList.add('hidden');
-    chatSection.classList.remove('hidden');
-    
-    // Add initial plan message
-    addMessage('assistant', 'Generating your personalized study plan...');
+    try {
+        // Send preferences and generate plan
+        const response = await fetch(`${API_BASE}/prefs`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId,
+                preferences: {
+                    weeklyAvailability: availability,
+                    goals: goals
+                }
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Show chat section
+            preferencesSection.classList.add('hidden');
+            chatSection.classList.remove('hidden');
+            
+            // Display the generated plan
+            addMessage('assistant', result.studyPlan);
+        } else {
+            alert('Failed to generate plan: ' + (result.error || 'Unknown error'));
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Generate Plan';
+        }
+    } catch (error) {
+        console.error('Preferences error:', error);
+        alert('Failed to generate study plan. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Generate Plan';
+    }
 });
 
 sendBtn.addEventListener('click', sendMessage);
@@ -78,13 +135,28 @@ async function sendMessage() {
     
     addMessage('user', message);
     chatInput.value = '';
+    sendBtn.disabled = true;
     
-    // TODO: Send to API and get response
-    console.log('Sending message:', message);
-    
-    // Simulate response
-    setTimeout(() => {
-        addMessage('assistant', 'I understand. Let me update your plan...');
-    }, 1000);
+    try {
+        // Send chat message
+        const response = await fetch(`${API_BASE}/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, message })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            addMessage('assistant', result.response);
+        } else {
+            addMessage('assistant', 'Sorry, I encountered an error: ' + (result.error || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Chat error:', error);
+        addMessage('assistant', 'Sorry, I encountered a connection error. Please try again.');
+    } finally {
+        sendBtn.disabled = false;
+    }
 }
 

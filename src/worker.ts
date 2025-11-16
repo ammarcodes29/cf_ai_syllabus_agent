@@ -40,13 +40,8 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
-    // Serve static files for UI
-    if (url.pathname === '/' || url.pathname === '/index.html') {
-      // TODO: Serve public/index.html (for now return basic HTML)
-      return new Response('Hello from cf_ai_syllabus_agent!', {
-        headers: { 'Content-Type': 'text/html' },
-      });
-    }
+    // Serve static files - handled by assets binding in wrangler.toml
+    // Static files (HTML, CSS, JS) are automatically served from public/ directory
 
     // POST /upload-syllabus
     if (url.pathname === '/upload-syllabus' && request.method === 'POST') {

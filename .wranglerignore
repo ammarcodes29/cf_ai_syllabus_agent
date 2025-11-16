@@ -1,0 +1,15 @@
+# Files to ignore during deployment
+node_modules/
+.git/
+.gitignore
+.wrangler/
+.env
+.env.*
+*.log
+.DS_Store
+.cursorrules
+prd.md
+README.md
+package-lock.json
+tsconfig.json
+

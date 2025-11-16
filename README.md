@@ -118,7 +118,11 @@ cf_ai_syllabus_agent/
 ├── README.md                        # This file
 ├── prd.md                           # Product requirements
 ├── PROMPTS.md                       # LLM prompts (3 prompts)
-└── .cursorrules                     # Project coding standards
+├── DEPLOY.md                        # Detailed deployment guide
+├── DEPLOYMENT_CHECKLIST.md          # Pre-deployment checklist
+├── .cursorrules                     # Project coding standards
+├── .gitignore                       # Git ignore rules
+└── .wranglerignore                  # Wrangler ignore rules
 ```
 
 ## How to Run Locally
@@ -221,16 +225,53 @@ curl -X POST http://localhost:8787/chat \
 
 ## How to Deploy
 
-### Deploy to Cloudflare Workers
+> 📋 **Detailed Guide:** See [DEPLOY.md](./DEPLOY.md) for complete deployment instructions and [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md) for a pre-flight checklist.
+
+### Pre-Deployment Checklist
+
+Before deploying, ensure:
+
+- ✅ All dependencies installed: `npm install`
+- ✅ Wrangler authenticated: `npm run whoami`
+- ✅ Local testing complete: `npm run dev`
+- ✅ No TypeScript errors: Check your editor
+- ✅ `wrangler.toml` configured correctly
+- ✅ Static assets in `public/` directory
+
+### Quick Deploy
+
+```bash
+# Deploy in one command
+npm run deploy
+```
+
+### Deploy to Cloudflare Workers (Detailed)
 
 1. **Ensure you're logged in**
    ```bash
+   npm run login
+   # or
    npx wrangler login
+   ```
+   
+   Verify you're authenticated:
+   ```bash
+   npm run whoami
    ```
 
 2. **Deploy the Worker**
    ```bash
+   npm run deploy
+   # or
    npx wrangler deploy
+   ```
+   
+   You should see output like:
+   ```
+   Total Upload: XX.XX KiB / gzip: XX.XX KiB
+   Uploaded cf-ai-syllabus-agent (X.XX sec)
+   Published cf-ai-syllabus-agent (X.XX sec)
+     https://cf-ai-syllabus-agent.your-subdomain.workers.dev
    ```
 
 3. **Get your deployment URL**
@@ -238,9 +279,31 @@ curl -X POST http://localhost:8787/chat \
    ```
    https://cf-ai-syllabus-agent.your-subdomain.workers.dev
    ```
+   
+   Copy this URL and update the README links above.
 
 4. **Test the deployment**
    Visit the URL in your browser to test the application.
+   
+   Test the API endpoints:
+   ```bash
+   # Replace with your actual URL
+   export WORKER_URL="https://cf-ai-syllabus-agent.your-subdomain.workers.dev"
+   
+   # Test upload endpoint
+   curl -X POST $WORKER_URL/upload-syllabus \
+     -H "Content-Type: application/json" \
+     -d '{"userId": "test_user", "syllabusText": "Test syllabus"}'
+   ```
+
+5. **Monitor logs** (optional)
+   ```bash
+   npm run tail
+   # or
+   npx wrangler tail
+   ```
+   
+   This will show real-time logs from your deployed Worker.
 
 ### Deploy to Custom Domain (Optional)
 

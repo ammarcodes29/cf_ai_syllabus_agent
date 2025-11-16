@@ -3,6 +3,10 @@ name = "cf-ai-syllabus-agent"
 main = "src/worker.ts"
 compatibility_date = "2025-11-16"
 
+# Static Assets (public directory)
+[assets]
+directory = "./public"
+
 # AI Binding
 [ai]
 binding = "AI"

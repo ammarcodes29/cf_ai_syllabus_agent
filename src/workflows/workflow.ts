@@ -28,6 +28,8 @@ export interface RevisionParams {
  * Converts raw syllabus text into structured JSON
  */
 export async function extract_syllabus(text: string, env: Env): Promise<any> {
+  console.log('[extract_syllabus] Starting, text length:', text.length);
+  
   const systemPrompt = `You are a syllabus analysis assistant. Your task is to extract key information from a course syllabus and return it in a structured JSON format.
 
 Extract the following information:
@@ -56,23 +58,36 @@ Return ONLY valid JSON in this format:
   ]
 }`;
 
-  const response = await runLLM(userPrompt, env, {
-    systemPrompt,
-    temperature: 0.7,
-    maxTokens: 2048,
-  });
-
-  // Parse JSON response
   try {
-    // Extract JSON from response (in case there's surrounding text)
-    const jsonMatch = response.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
+    console.log('[extract_syllabus] Calling runLLM...');
+    const response = await runLLM(userPrompt, env, {
+      systemPrompt,
+      temperature: 0.7,
+      maxTokens: 2048,
+    });
+
+    console.log('[extract_syllabus] AI response received, length:', response.length);
+    console.log('[extract_syllabus] First 500 chars:', response.substring(0, 500));
+
+    // Parse JSON response
+    try {
+      // Extract JSON from response (in case there's surrounding text)
+      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        console.log('[extract_syllabus] Successfully parsed JSON');
+        return parsed;
+      }
+      return JSON.parse(response);
+    } catch (parseError: any) {
+      console.error('[extract_syllabus] Failed to parse response:', response.substring(0, 1000));
+      console.error('[extract_syllabus] Parse error:', parseError.message);
+      throw new Error('Failed to extract syllabus data: ' + parseError.message);
     }
-    return JSON.parse(response);
-  } catch (error) {
-    console.error('Failed to parse syllabus JSON:', error);
-    throw new Error('Failed to extract syllabus data');
+  } catch (error: any) {
+    console.error('[extract_syllabus] Error:', error);
+    console.error('[extract_syllabus] Error message:', error.message);
+    throw error;
   }
 }
 

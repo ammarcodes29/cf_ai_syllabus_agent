@@ -30,6 +30,9 @@ export async function runLLM(
     maxTokens = 2048,
   } = options;
 
+  console.log('[runLLM] Starting AI request, prompt length:', prompt.length);
+  console.log('[runLLM] System prompt:', systemPrompt?.substring(0, 100) + '...');
+
   const messages = [];
 
   // Add system prompt if provided
@@ -46,23 +49,38 @@ export async function runLLM(
     content: prompt,
   });
 
-  const response = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
-    messages,
-    temperature,
-    max_tokens: maxTokens,
-  });
+  try {
+    console.log('[runLLM] Calling AI.run...');
+    const response = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
+      messages,
+      temperature,
+      max_tokens: maxTokens,
+    });
 
-  // Extract text from response
-  if (response && typeof response === 'object' && 'response' in response) {
-    return (response as { response: string }).response;
+    console.log('[runLLM] AI response received:', typeof response);
+    console.log('[runLLM] Response keys:', Object.keys(response as any));
+    
+    // Extract text from response
+    if (response && typeof response === 'object' && 'response' in response) {
+      const text = (response as { response: string }).response;
+      console.log('[runLLM] Extracted text, length:', text.length);
+      return text;
+    }
+
+    // Fallback for different response structures
+    if (typeof response === 'string') {
+      console.log('[runLLM] Response is string, length:', response.length);
+      return response;
+    }
+
+    console.error('[runLLM] Unexpected response format:', JSON.stringify(response));
+    throw new Error('Unexpected response format from AI');
+  } catch (error: any) {
+    console.error('[runLLM] Error:', error);
+    console.error('[runLLM] Error message:', error.message);
+    console.error('[runLLM] Error stack:', error.stack);
+    throw error;
   }
-
-  // Fallback for different response structures
-  if (typeof response === 'string') {
-    return response;
-  }
-
-  throw new Error('Unexpected response format from AI');
 }
 
 /**

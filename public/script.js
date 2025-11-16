@@ -39,6 +39,12 @@ function setupEventListeners() {
     // Upload button
     uploadBtn.addEventListener('click', handleSyllabusUpload);
     
+    // Direct text submit
+    const directSubmitBtn = document.getElementById('direct-submit-btn');
+    if (directSubmitBtn) {
+        directSubmitBtn.addEventListener('click', handleDirectTextSubmit);
+    }
+    
     // Preferences form
     preferencesForm.addEventListener('submit', handlePreferencesSubmit);
     
@@ -59,6 +65,61 @@ function handleFileSelect(e) {
     uploadBtn.disabled = !selectedFile;
     if (selectedFile) {
         document.querySelector('#upload-area label').textContent = selectedFile.name;
+        
+        // Warn if PDF
+        if (selectedFile.type === 'application/pdf') {
+            document.querySelector('#upload-area label').textContent += ' (PDF not supported yet - use text paste below)';
+        }
+    }
+}
+
+async function handleDirectTextSubmit() {
+    const directInput = document.getElementById('direct-syllabus-input');
+    const syllabusText = directInput.value.trim();
+    
+    if (!syllabusText) {
+        alert('Please paste your syllabus text first.');
+        return;
+    }
+    
+    const directSubmitBtn = document.getElementById('direct-submit-btn');
+    directSubmitBtn.disabled = true;
+    directSubmitBtn.textContent = 'Processing...';
+    
+    try {
+        console.log('Processing direct text input, length:', syllabusText.length);
+        
+        // Upload syllabus to worker
+        const response = await fetch(`${API_BASE}/upload-syllabus`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, syllabusText })
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Server returned ${response.status}: ${errorText}`);
+        }
+        
+        const result = await response.json();
+        console.log('Upload result:', result);
+        
+        if (result.success) {
+            console.log('Syllabus processed:', result.syllabusJson);
+            
+            // Show preferences section
+            uploadSection.classList.add('hidden');
+            preferencesSection.classList.remove('hidden');
+        } else {
+            alert('Failed to process syllabus: ' + (result.error || 'Unknown error') + '\n\nCheck console for details.');
+            directSubmitBtn.disabled = false;
+            directSubmitBtn.textContent = 'Process Text';
+        }
+    } catch (error) {
+        console.error('Upload error:', error);
+        alert('Failed to process syllabus: ' + error.message + '\n\nCheck the console for details.');
+        directSubmitBtn.disabled = false;
+        directSubmitBtn.textContent = 'Process Text';
     }
 }
 
@@ -69,8 +130,27 @@ async function handleSyllabusUpload() {
     uploadBtn.textContent = 'Processing...';
     
     try {
-        // Read file as text (for now, assume text file)
-        const syllabusText = await selectedFile.text();
+        let syllabusText;
+        
+        // Check file type
+        if (selectedFile.type === 'application/pdf') {
+            alert('PDF support coming soon! For now, please:\n\n1. Open your PDF\n2. Copy all the text (Cmd+A, Cmd+C)\n3. Paste into a .txt file\n4. Upload the .txt file\n\nOr use the text input method below.');
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = 'Upload & Process';
+            return;
+        } else {
+            // Read as text for .txt files
+            syllabusText = await selectedFile.text();
+        }
+        
+        if (!syllabusText || syllabusText.trim().length === 0) {
+            alert('The file appears to be empty. Please upload a file with syllabus content.');
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = 'Upload & Process';
+            return;
+        }
+        
+        console.log('Uploading syllabus text length:', syllabusText.length);
         
         // Upload syllabus to worker
         const response = await fetch(`${API_BASE}/upload-syllabus`, {
@@ -79,7 +159,12 @@ async function handleSyllabusUpload() {
             body: JSON.stringify({ userId, syllabusText })
         });
         
+        if (!response.ok) {
+            throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        }
+        
         const result = await response.json();
+        console.log('Upload result:', result);
         
         if (result.success) {
             console.log('Syllabus processed:', result.syllabusJson);
@@ -94,7 +179,7 @@ async function handleSyllabusUpload() {
         }
     } catch (error) {
         console.error('Upload error:', error);
-        alert('Failed to upload syllabus. Please try again.');
+        alert('Failed to upload syllabus: ' + error.message + '\n\nCheck the console for details.');
         uploadBtn.disabled = false;
         uploadBtn.textContent = 'Upload & Process';
     }

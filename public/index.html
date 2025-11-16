@@ -17,10 +17,16 @@
             <section id="upload-section" class="card">
                 <h2>Upload Your Syllabus</h2>
                 <div id="upload-area">
-                    <input type="file" id="syllabus-file" accept=".pdf,.txt,.doc,.docx">
-                    <label for="syllabus-file">Choose file or drag and drop</label>
+                    <input type="file" id="syllabus-file" accept=".txt">
+                    <label for="syllabus-file">Choose text file (.txt only)</label>
                 </div>
                 <button id="upload-btn" disabled>Upload & Process</button>
+                
+                <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+                    <p style="margin-bottom: 1rem; color: var(--text-light);">Or paste your syllabus text directly:</p>
+                    <textarea id="direct-syllabus-input" placeholder="Paste your syllabus text here..." style="width: 100%; min-height: 150px; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-family: inherit;"></textarea>
+                    <button id="direct-submit-btn" style="margin-top: 1rem;">Process Text</button>
+                </div>
             </section>
 
             <section id="preferences-section" class="card hidden">

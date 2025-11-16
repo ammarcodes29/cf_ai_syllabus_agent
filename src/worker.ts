@@ -47,15 +47,37 @@ export default {
         const body = await request.json() as { userId: string; syllabusText: string };
         const { userId, syllabusText } = body;
 
+        console.log('[upload-syllabus] Received request:', { 
+          userId, 
+          textLength: syllabusText?.length 
+        });
+
         if (!userId || !syllabusText) {
           return new Response(
-            JSON.stringify({ error: 'Missing userId or syllabusText' }),
+            JSON.stringify({ 
+              success: false,
+              error: 'Missing userId or syllabusText' 
+            }),
             { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
+        if (syllabusText.trim().length === 0) {
+          return new Response(
+            JSON.stringify({ 
+              success: false,
+              error: 'Syllabus text is empty' 
+            }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        console.log('[upload-syllabus] Calling AI to extract syllabus...');
+        
         // Extract syllabus using AI
         const syllabusJson = await extract_syllabus(syllabusText, env);
+
+        console.log('[upload-syllabus] AI extraction complete:', syllabusJson);
 
         // Save to Durable Object
         const stub = getUserStub(userId, env);
@@ -65,6 +87,8 @@ export default {
           headers: { 'Content-Type': 'application/json' },
         });
 
+        console.log('[upload-syllabus] Saved to Durable Object');
+
         return new Response(
           JSON.stringify({ 
             success: true, 
@@ -73,10 +97,15 @@ export default {
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
-      } catch (error) {
-        console.error('Error in /upload-syllabus:', error);
+      } catch (error: any) {
+        console.error('[upload-syllabus] Error:', error);
+        console.error('[upload-syllabus] Error stack:', error.stack);
         return new Response(
-          JSON.stringify({ error: 'Failed to process syllabus' }),
+          JSON.stringify({ 
+            success: false,
+            error: error.message || 'Failed to process syllabus',
+            details: error.toString()
+          }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
